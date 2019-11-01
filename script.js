@@ -36,6 +36,8 @@ var answer3 = document.getElementById("C");
 var answer4 = document.getElementById("D");
 var questioncount = 0;
 var lastQuestion = questions.length - 1;
+
+
   
 function renderQuestion(){
     var q =  questions[questioncount];
@@ -46,17 +48,16 @@ function renderQuestion(){
     answer3.innerHTML = q.choices[2];
     answer4.innerHTML = q.choices[3];
 };
-// renderQuestion();
-  
-window.addEventListener("load", startup);
-
-function startup (){
-    start.addEventListener("click", startquiz);
-};
 
 function startquiz (){
     start.style.display = "none";
     introduction.style.display = "none";
     renderQuestion();
   };
-  
+
+
+startquiz();
+renderQuestion();
+
+// start.addEventListener("click", startquiz);
+
