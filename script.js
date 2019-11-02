@@ -1,63 +1,202 @@
-var questions = [
-    {
-      title: "Commonly used data types DO NOT include:",
-      choices: ["strings", "booleans", "alerts", "numbers"],
-      answer: "alerts"
-    },
-    {
-      title: "The condition in an if / else statement is enclosed within ____.",
-      choices: ["quotes", "curly brackets", "parentheses", "square brackets"],
-      answer: "parentheses"
-    },
-    {
-      title: "Inside which HTML element do we put the JavaScript?",
-      choices: ["<js>", "<scripting>", "<javascript>", "<script>"],
-      answer: "<script>"
-    },
-    {
-      title: "Where is the correct place to insert a JavaScript?",
-      choices: ["<head>", "<body>", "<div>", "<section>"],
-      answer: "<body>"
-    },
-    {
-      title: "What is the correct syntax for referring to an external script called 'xxx.js'?",
-      choices: ["<script src='xxx.js'>", "<script href='xxx.js'>", "<script name='xxx.js'>", "<script style='xxx.js'>"],
-      answer: "<script src='xxx.js'>"
-    },
-  ];
-  
-var start = document.getElementById("starbutton");
+
+// All variables
+var start = document.getElementById("start");
 var introduction = document.querySelector("#intro");
-var next = document.querySelector(".choice");
+var next = document.getElementById("choices");
 var question = document.getElementById("question");
+var quiz = document.getElementById("quiz");
 var answer1 = document.getElementById("A");
 var answer2 = document.getElementById("B");
 var answer3 = document.getElementById("C");
 var answer4 = document.getElementById("D");
+var message = document.getElementById("justify");
+var form = document.getElementById("form");
+var display = document.getElementById("submit");
+var scorelist = document.getElementById("scorelist");
+var user = document.getElementById("name");
+var alertuser = document.getElementById("alert");
+var clear = document.getElementById("clear");
+var goback = document.getElementById("goback");
+var timerdisplay = document.getElementById("seconds");
+var storescorelist = document.getElementById("userlist");
+var viewscorehistory = document.getElementById("score");
+var isanswerselected = false;
+var totalSeconds = 75;
+var interval;
 var questioncount = 0;
 var lastQuestion = questions.length - 1;
+var score = 0;
+var time;
+
+//hide the result list
+scorelist.style.display = "none";
 
 
-  
+//start the quiz
+start.addEventListener("click", function(){
+    startquiz();
+    startTimer(); 
+})
+
+//Make the time starts counting down
+function startTimer() {
+  interval = setInterval(function() {
+  totalSeconds--;
+  timerdisplay.textContent = " " + totalSeconds;
+
+//if the user is not finish but time is up 
+if(questioncount <= lastQuestion && totalSeconds === 0){
+    clearInterval(interval);
+    alert("You are out of time! Please try again");
+    scorerender();
+}
+}, 1000);
+
+};
+
+//printing the question and answers from question object
 function renderQuestion(){
-    var q =  questions[questioncount];
-  
+var q =  questions[questioncount]; 
     question.innerHTML = q.title;
     answer1.innerHTML = q.choices[0];
     answer2.innerHTML = q.choices[1];
     answer3.innerHTML = q.choices[2];
     answer4.innerHTML = q.choices[3];
+    message.style.display = "none";
+    clearInterval(time);
 };
 
+
+//start quiz 
 function startquiz (){
     start.style.display = "none";
     introduction.style.display = "none";
+    quiz.style.display = "block";
     renderQuestion();
-  };
+};
+
+//next question
+next.addEventListener("click", function(event) {
+event.preventDefault();
+
+//user only can select once
+if (isanswerselected){
+    alert ("You only can select one time");
+    return; 
+}
+
+isanswerselected =  true;
+
+//checking answer is correct or not
+if(event.target.matches("button")) {
+    checkAnswer(event.target.innerHTML);
+}
+});
+
+//checking answer function
+function checkAnswer (answer){
+    console.log(answer);
+    if(answer === questions[questioncount].answer){
+        // answer is correct
+        score++;
+        answerIsCorrect();
+    }else{
+        // answer is wrong and minus 10 seconds as penalty
+        answerIsWrong(); 
+        totalSeconds-=10;
+    }
+    time = setInterval(nextquestion, 1000); 
+};
+
+//next question function
+function nextquestion() {
+    isanswerselected =  false;
+    //continue to next question 
+    if(questioncount < lastQuestion){
+        questioncount++;
+        clearInterval(time);
+        renderQuestion();
+    }else{
+        // end the quiz and show the score
+        clearInterval(interval);
+        scorerender();
+    }
+};
+
+//answer is correct
+function answerIsCorrect(){
+    message.style.display = "block";
+    message.textContent = "!Correct";
+};
+
+// answer is Wrong
+function answerIsWrong(){
+    message.style.display = "block";
+    message.textContent = "!Wrong";
+};
 
 
-startquiz();
-renderQuestion();
+//displaying socre
+function scorerender(){
+    quiz.style.display = "none";
+    form.style.display = "block";
+    message.style.display = "block";
+    message.textContent = "Your score is: " + score;  
+};
 
-// start.addEventListener("click", startquiz);
+
+// viewscorehistory.addEventListener("click", function(){
+//     viewscore();
+// });
+
+//display error message if the User name is blank
+function displayMessage(type, message){
+    alertuser.textContent = message;
+    alertuser.setAttribute("class", type);
+};
+
+// function viewscore() {
+//     var userscore = localStorage.getItem("userscore");
+//     var username = localStorage.getItem("username");
+
+//     var li = document.createElement("li");
+//     li.textContent = username + ": " + userscore +" point(s)";
+//     storescorelist.appendChild(li);  
+// }
+
+
+//printing username and score to a list
+display.addEventListener("click", function(event){
+    event.preventDefault(); 
+var username = user.value;   
+
+if (username !== ""){
+    clear.style.display = "block";
+    goback.style.display = "block";
+    scorelist.style.display = "block";
+    alertuser.textContent = "";
+    form.innerHTML = "";
+    var li = document.createElement("li");
+    li.textContent = username + ": " + score +" point(s)";
+    scorelist.appendChild(li);    
+} else {  
+    displayMessage("error","Name cannot be blank!");
+    return false;
+}
+
+    localStorage.setItem("username", username);
+    localStorage.setItem("userscore", score);
+});
+
+//clear the list
+clear.addEventListener("click", function(){
+    scorelist.innerHTML="";
+    scorelist.style.display = "none";
+    message.style.display = "none";
+});
+
+//reload the quiz
+goback.addEventListener("click", function(){
+    location.reload();
+})
 
