@@ -27,11 +27,13 @@ var questioncount = 0;
 var lastQuestion = questions.length - 1;
 var score = 0;
 var time;
+var viewattemp = [];
 
 //hide the result list
 scorelist.style.display = "none";
 
 
+ 
 //start the quiz
 start.addEventListener("click", function(){
     startquiz();
@@ -144,10 +146,19 @@ function scorerender(){
     message.textContent = "Your score is: " + score;  
 };
 
-
-// viewscorehistory.addEventListener("click", function(){
-//     viewscore();
-// });
+function returnscore (){
+    return score;
+    console.log(score);
+};
+viewscorehistory.addEventListener("click", function(){
+    viewscore();
+for (var i = 0; i < viewattemp.length; i++) {
+    var list = viewattemp[i];
+     var li = document.createElement("li");
+    li.textContent = list;
+    storescorelist.appendChild(li); 
+}
+});
 
 //display error message if the User name is blank
 function displayMessage(type, message){
@@ -155,14 +166,12 @@ function displayMessage(type, message){
     alertuser.setAttribute("class", type);
 };
 
-// function viewscore() {
-//     var userscore = localStorage.getItem("userscore");
-//     var username = localStorage.getItem("username");
-
-//     var li = document.createElement("li");
-//     li.textContent = username + ": " + userscore +" point(s)";
-//     storescorelist.appendChild(li);  
-// }
+function viewscore() {
+    var storedscore = JSON.parse(localStorage.getItem("user"));
+    if (storedscore !== null) {
+        viewattemp = storedscore;
+      }  
+};
 
 
 //printing username and score to a list
@@ -184,8 +193,13 @@ if (username !== ""){
     return false;
 }
 
-    localStorage.setItem("username", username);
-    localStorage.setItem("userscore", score);
+var attemp = {
+    name: username,
+    userscore: score,
+};
+
+localStorage.setItem("user", JSON.stringify(attemp));
+
 });
 
 //clear the list
