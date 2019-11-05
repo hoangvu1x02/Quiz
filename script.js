@@ -21,13 +21,14 @@ var timerdisplay = document.getElementById("seconds");
 var storescorelist = document.getElementById("userlist");
 var viewscorehistory = document.getElementById("score");
 var isanswerselected = false;
+var showingscorelist = true;
 var totalSeconds = 75;
 var interval;
 var questioncount = 0;
 var lastQuestion = questions.length - 1;
 var score = 0;
 var time;
-var viewattemp = [];
+var viewattempt = [];
 
 //hide the result list
 scorelist.style.display = "none";
@@ -38,6 +39,9 @@ scorelist.style.display = "none";
 start.addEventListener("click", function(){
     startquiz();
     startTimer(); 
+    showingscorelist = false;
+    //hide attempt list
+    storescorelist.style.display = "none";
 })
 
 //Make the time starts counting down
@@ -146,18 +150,21 @@ function scorerender(){
     message.textContent = "Your score is: " + score;  
 };
 
-function returnscore (){
-    return score;
-    console.log(score);
-};
 viewscorehistory.addEventListener("click", function(){
-    viewscore();
-for (var i = 0; i < viewattemp.length; i++) {
-    var list = viewattemp[i];
-     var li = document.createElement("li");
-    li.textContent = list;
+
+if (showingscorelist == true) {
+    viewscore(); 
+    
+for (var i = 0; i < viewattempt.length; i++) {
+    var list = viewattempt[i];
+    var li = document.createElement("li");
+    li.textContent = list.name + ":" + list.userscore;
     storescorelist.appendChild(li); 
+    storescorelist.style.display = "block";
+};
+       // localStorage.removeItem("user");
 }
+    showingscorelist = false;
 });
 
 //display error message if the User name is blank
@@ -169,7 +176,7 @@ function displayMessage(type, message){
 function viewscore() {
     var storedscore = JSON.parse(localStorage.getItem("user"));
     if (storedscore !== null) {
-        viewattemp = storedscore;
+        viewattempt.push(storedscore);
       }  
 };
 
@@ -178,7 +185,7 @@ function viewscore() {
 display.addEventListener("click", function(event){
     event.preventDefault(); 
 var username = user.value;   
-
+showingscorelist = true;
 if (username !== ""){
     clear.style.display = "block";
     goback.style.display = "block";
@@ -193,12 +200,15 @@ if (username !== ""){
     return false;
 }
 
-var attemp = {
+// storing attempt
+var attempt = {
     name: username,
     userscore: score,
 };
 
-localStorage.setItem("user", JSON.stringify(attemp));
+console.log(attempt);
+
+localStorage.setItem("user", JSON.stringify(attempt));
 
 });
 
@@ -212,5 +222,6 @@ clear.addEventListener("click", function(){
 //reload the quiz
 goback.addEventListener("click", function(){
     location.reload();
+    showingscorelist = true;
 })
 
